@@ -448,7 +448,7 @@ void FbxParts::Draw(Transform& transform)
 		cb.diffuse = pMaterial_[i].diffuse;
 		cb.speculer = pMaterial_[i].specular;
 		cb.shininess = pMaterial_[i].shininess;
-		cb.cameraPosition = XMFLOAT4(Camera::GetPosition().x, Camera::GetPosition().y, Camera::GetPosition().z, 0);
+		cb.cameraPosition = XMFLOAT4(Camera::GetPositionXMFLOAT3().x, Camera::GetPositionXMFLOAT3().y, Camera::GetPositionXMFLOAT3().z, 0);
 		cb.lightDirection = XMFLOAT4(1, -1, 1, 0);
 		cb.isTexture = pMaterial_[i].pTexture != nullptr;
 

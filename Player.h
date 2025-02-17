@@ -4,10 +4,11 @@ class Player :
     public GameObject
 {
     int hModel_;
-    bool onGround;
-    bool isJamp;
-    bool canJamp;
+    bool onGround_;
+    bool isJamp_;
+    bool canJamp_;
     float speed_;
+    int hp_;
 
     XMVECTOR moveDirection;
 

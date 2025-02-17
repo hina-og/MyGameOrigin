@@ -1,5 +1,8 @@
 #pragma once
 #define DIRECTINPUT_VERSION 0x0800
+#define LEFT_CLICK 0
+#define RIGHT_CLICK 1
+#define WHEEL_CLICK 2
 #include <dInput.h>
 #include <DirectXMath.h>
 #include "XInput.h"

@@ -16,7 +16,7 @@ PlayScene::PlayScene(GameObject* parent)
 void PlayScene::Initialize()
 {
 	player = Instantiate<Player>(this);
-	//Instantiate<Stage>(this);
+	Instantiate<Stage>(this);
 }                                                                                                                                                                  
 void PlayScene::Update()
 {

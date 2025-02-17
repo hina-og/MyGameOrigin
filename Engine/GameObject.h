@@ -21,7 +21,8 @@ using namespace DirectX;
 class GameObject
 {
 protected:
-	
+	float g_;//重力
+
 	//位置や向きなどを管理するオブジェクト
 	Transform				transform_;
 
@@ -155,8 +156,6 @@ public:
 
 
 private:
-	float g_;//重力
-
 	//オブジェクト削除（再帰）
 	//引数：obj　削除するオブジェクト
 	void KillObjectSub(GameObject* obj);

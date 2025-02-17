@@ -3,10 +3,21 @@
 #include "Engine/Input.h"
 #include "Object.h"
 #include "SquareCollider.h"
+#include "Engine/Camera.h"
 
 Player::Player(GameObject* parent)
 	:GameObject(parent, "Player.h"),hModel_(-1)
 {
+	g_ = 0.87;
+	transform_.position_ = { 0,0.5,0 };
+	onGround_ = false;
+	isJamp_ = false;
+	speed_ = 0.1;
+	hp_ = 10;
+
+	slide_ = false;
+	slideTime_ = 0.2f;
+	slideScale_ = 1.0f;
 }
 
 Player::~Player()
@@ -22,9 +33,9 @@ void Player::Initialize()
 
 void Player::Update()
 {
-	if (transform_.position_.y <= 0 && stage->InStage(transform_.position_))
+	if (transform_.position_.y <= 0)
 	{
-		onGround = true;
+		onGround_ = true;
 	}
 
 
@@ -61,22 +72,22 @@ void Player::Update()
 	}
 	if (Input::IsKey(DIK_LSHIFT))
 	{
-		speed_ = 1.5;
+		speed_ = 0.15;
 	}
 	else
 	{
-		speed_ = 1.0;
+		speed_ = 0.1;
 	}
 
-	if (Input::IsKeyDown(DIK_SPACE) && canJamp)
+	if (Input::IsKeyDown(DIK_SPACE) && canJamp_)
 	{
-		onGround = false;
-		isJamp = true;
-		canJamp = false;
-		g = -0.03;
+		onGround_ = false;
+		isJamp_ = true;
+		canJamp_ = false;
+		g_ = -0.5;
 	}
 
-	if (Input::IsMouseButtonDown(Click))
+	if (Input::IsMouseButtonDown(LEFT_CLICK))
 	{
 		slide_ = true;
 	}
@@ -97,14 +108,14 @@ void Player::Update()
 
 	// 移動方向がゼロでない場合、正規化して速度を掛ける
 	if (!XMVector3Equal(moveDirection, XMVectorZero())) {
-		moveDirection = XMVector3Normalize(moveDirection) * (0.01f * speed_); // 速度5.0f
+		moveDirection = XMVector3Normalize(moveDirection) * speed_; // 速度5.0f
 
 		transform_.position_.x += XMVectorGetX(moveDirection);
 		transform_.position_.z += XMVectorGetZ(moveDirection);
 
 		float angle = atan2(XMVectorGetX(moveDirection), XMVectorGetZ(moveDirection)) * (180 / 3.14);
 
-		if (angle < -180)
+		/*if (angle < -180)
 		{
 			angle = -180;
 		}
@@ -138,22 +149,22 @@ void Player::Update()
 					transform_.rotate_.y -= 1.0;
 				}
 			}
-		}
+		}*/
 	}
 
-	transform_.position_.y -= g;
+	transform_.position_.y -= g_;
 
-	if (onGround)//地面についているとき
+	if (onGround_)//地面についているとき
 	{
-		isJamp = true;
+		isJamp_ = true;
 
 		transform_.position_.y = 0;
-		canJamp = true;
+		canJamp_ = true;
 	}
 	else
 	{
-		g += 0.0001;
-		isJamp = false;
+		g_ += 0.87;
+		isJamp_ = false;
 	}
 
 	//落ちすぎたときに初期地点に戻す
@@ -162,7 +173,7 @@ void Player::Update()
 		transform_.position_ = { 0,0.5,0 };
 	}
 
-	onGround = false;
+	onGround_ = false;
 }
 
 void Player::Draw()
@@ -199,4 +210,24 @@ void Player::OnCollision(GameObject* pTarget)
 
 void Player::Slide()
 {
+	if (slideScale_ >= 0.7 && slideTime_ > 0)
+	{
+		slideScale_ -= 0.01;
+	}
+	if (slideTime_ <= 0)
+	{
+		slideScale_ += 0.05;
+		if (slideScale_ >= 1.0)
+		{
+			slideScale_ = 1.0;
+			slideTime_ = 0.2f;
+			slide_ = false;
+		}
+	}
+
+	transform_.scale_ = { 1 * slideScale_,1 * slideScale_,1 * slideScale_ };
+
+	slideTime_ -= 0.001;
+
+	speed_ = 2.0;
 }
