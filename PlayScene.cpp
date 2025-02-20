@@ -18,6 +18,7 @@ void PlayScene::Initialize()
 	player = Instantiate<Player>(this);
 	Instantiate<EnemyMaster>(this);
 	Instantiate<Stage>(this);
+	//Instantiate<Object>(this);
 }                                                                                                                                                                  
 void PlayScene::Update()
 {

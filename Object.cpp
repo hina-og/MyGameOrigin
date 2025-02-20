@@ -13,7 +13,7 @@ Object::~Object()
 
 void Object::Initialize()
 {
-    hModel_ = Model::Load("Model\\Block.fbx");
+    hModel_ = Model::Load("Model\\building01.fbx");
     assert(hModel_ >= 0);
     transform_.position_ = { 5,0,10 };
 
@@ -23,7 +23,7 @@ void Object::Initialize()
 
 void Object::Initialize(std::string _fileName, XMFLOAT3 _pos, XMFLOAT3 _size)
 {
-    hModel_ = Model::Load("Model\\Block.fbx");
+    hModel_ = Model::Load("Model\\building01.fbx");
     assert(hModel_ >= 0);
     transform_.position_ = _pos;
 
