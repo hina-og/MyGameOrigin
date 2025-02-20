@@ -77,6 +77,7 @@ namespace Model
 
 	//現在のアニメーションのフレームを取得
 	int GetAnimFrame(int handle);
+	void SetAnimFrame(int handle, int frame);
 
 	//任意のボーンの位置を取得
 	//引数：handle		調べたいモデルの番号

@@ -168,9 +168,16 @@ void Camera::MouseToCamera(float _radius, float _theta, float _phi)
 
 DirVec Camera::UpdatePlayerPositionAndCamera()
 {
-	// ビュー行列からカメラの前方向（第3列）と右方向（第1列）を取得
-	XMVECTOR forward_ = XMVector3Normalize(XMVectorSet(projMatrix_.r[2].m128_f32[0], 0/*-projMatrix_.r[2].m128_f32[1]*/, -projMatrix_.r[2].m128_f32[2], 0.0f));
-	XMVECTOR right_ = XMVector3Normalize(XMVectorSet(-projMatrix_.r[0].m128_f32[0], 0/*projMatrix_.r[0].m128_f32[1]*/, projMatrix_.r[0].m128_f32[2], 0.0f));
+	//// ビュー行列からカメラの前方向（第3列）と右方向（第1列）を取得
+	//XMVECTOR forward_ = XMVector3Normalize(XMVectorSet(projMatrix_.r[2].m128_f32[0], 0, -projMatrix_.r[2].m128_f32[2], 0.0f));
+	//XMVECTOR right_   = XMVector3Normalize(XMVectorSet(-projMatrix_.r[0].m128_f32[0], 0, projMatrix_.r[0].m128_f32[2], 0.0f));
 
-	return { forward_,right_ };
+	//return { forward_,right_ };
+
+	// ビュー行列からカメラの前方向（第3列）と右方向（第1列）を取得
+	XMVECTOR forward_ = XMVector3Normalize(XMVectorSet(viewMatrix_.r[2].m128_f32[0], 0.0f, -viewMatrix_.r[2].m128_f32[2], 0.0f));
+	XMVECTOR right_   = XMVector3Normalize(XMVectorSet(-viewMatrix_.r[0].m128_f32[0], 0.0f, viewMatrix_.r[0].m128_f32[2], 0.0f));
+
+	return { forward_, right_ };
+
 }

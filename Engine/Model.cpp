@@ -148,6 +148,11 @@ namespace Model
 		return (int)_datas[handle]->nowFrame;
 	}
 
+	void SetAnimFrame(int handle, int frame)
+	{
+		_datas[handle]->nowFrame = frame;
+	}
+
 
 	//”CˆÓ‚Ìƒ{[ƒ“‚ÌˆÊ’u‚ğæ“¾
 	XMFLOAT3 GetBonePosition(int handle, std::string boneName)
