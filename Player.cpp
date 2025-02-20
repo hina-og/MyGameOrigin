@@ -132,6 +132,11 @@ void Player::OnCollision(GameObject* pTarget)
 		XMFLOAT3 trans = pTarget->squareCollider_->GetDist();
 		transform_.position_ = { transform_.position_.x + trans.x,transform_.position_.y ,transform_.position_.z + trans.z };
 	}
+
+	if (pTarget->GetObjectName() == "Bullet" && pTarget->GetParent()->GetObjectName() == "Enemy")
+	{
+		Damage(1);
+	}
 }
 
 void Player::Move()
@@ -223,46 +228,27 @@ void Player::Move()
 
 void Player::Slide()
 {
-	if (slideTime_ > 0)
+	if (slideScale_ >= 0.7 && slideTime_ > 0)
 	{
-		if (slideScale_ >= 0.7)
-		{
-			slideScale_ -= 0.04;
-		}
-
-		// スライド中は移動を続ける
-		slideTime_ -= 0.01f;
-
-		// スライドの移動を行う
-		slideDirection_ = XMVector3Normalize(slideDirection_) * speed_ * 2.0f; // スライド中は速く移動
-
-		transform_.position_.x += XMVectorGetX(slideDirection_);
-		transform_.position_.z += XMVectorGetZ(slideDirection_);
+		slideScale_ -= 0.01;
 	}
-	else
+	if (slideTime_ <= 0)
 	{
-		//// スライド時間が終了したら、スライドを停止
-		//slide_ = false;
-		XMFLOAT3 trans = pTarget->squareCollider_->GetDist();
-		transform_.position_ = { transform_.position_.x + trans.x,transform_.position_.y ,transform_.position_.z + trans.z };
-	}
-
-	if (pTarget->GetObjectName() == "Bullet" && pTarget->GetParent()->GetObjectName() == "Enemy")
-	{
-		Damage(1);
-	}
-}
-
 		slideScale_ += 0.05;
 		if (slideScale_ >= 1.0)
 		{
 			slideScale_ = 1.0;
-			slideTime_ = 0.4f;
+			slideTime_ = 0.2f;
 			slide_ = false;
 		}
 	}
 
-	transform_.scale_ = { 1 * slideScale_, 1 * slideScale_, 1 * slideScale_ };
+	transform_.scale_ = { 1 * slideScale_,1 * slideScale_,1 * slideScale_ };
+
+	slideTime_ -= 0.001;
+
+	speed_ = 2.0;
+
 }
 
 void Player::Damage(int _damage)
