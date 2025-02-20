@@ -1,6 +1,6 @@
 #include "PlayScene.h"
 #include "Player.h"
-#include "Enemy.h"
+#include "EnemyMaster.h"
 #include "Stage.h"
 
 namespace 
@@ -16,6 +16,7 @@ PlayScene::PlayScene(GameObject* parent)
 void PlayScene::Initialize()
 {
 	player = Instantiate<Player>(this);
+	Instantiate<EnemyMaster>(this);
 	Instantiate<Stage>(this);
 }                                                                                                                                                                  
 void PlayScene::Update()

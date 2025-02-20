@@ -4,6 +4,7 @@
 #include "Object.h"
 #include "SquareCollider.h"
 #include "Engine/Camera.h"
+#include "Engine/SphereCollider.h"
 
 Player::Player(GameObject* parent)
 	:GameObject(parent, "Player.h"),hModel_(-1)
@@ -28,6 +29,10 @@ void Player::Initialize()
 {
 	hModel_ = Model::Load("Model\\Slime_Run.fbx");
 	assert(hModel_ >= 0);
+
+	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0, 0), 0.3);
+	AddCollider(collider);
+
 	transform_.position_ = { 0,0,-5 };
 }
 
@@ -56,6 +61,7 @@ void Player::Update()
 		if (Input::IsKey(DIK_A))
 		{
 			moveDirection += camDir_.right_;
+			transform_.rotate_.y += 1;
 		}
 		if (Input::IsKey(DIK_D))
 		{
@@ -93,7 +99,9 @@ void Player::Update()
 	}
 	if (Input::IsMouseButtonDown(RIGHT_CLICK))
 	{
-
+		pBullet = Instantiate<Bullet>(this->GetParent()->GetParent());
+		pBullet->SetPosition(transform_.position_);
+		pBullet->SetRotate(transform_.rotate_);
 	}
 
 	if (transform_.rotate_.y > 360)
@@ -206,6 +214,11 @@ void Player::OnCollision(GameObject* pTarget)
 		XMFLOAT3 trans = pTarget->squareCollider_->GetDist();
 		transform_.position_ = { transform_.position_.x + trans.x,transform_.position_.y ,transform_.position_.z + trans.z };
 	}
+
+	if (pTarget->GetObjectName() == "Bullet" && pTarget->GetParent()->GetObjectName() == "Enemy")
+	{
+		Damage(1);
+	}
 }
 
 void Player::Slide()
@@ -230,4 +243,9 @@ void Player::Slide()
 	slideTime_ -= 0.001;
 
 	speed_ = 2.0;
+}
+
+void Player::Damage(int _damage)
+{
+	hp_ -= _damage;
 }

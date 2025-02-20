@@ -154,6 +154,7 @@ public:
 	void SetScale(XMFLOAT3 scale) { transform_.scale_ = scale; }
 	void SetScale(float x, float y, float z) { SetScale(XMFLOAT3(x, y, z)); }
 
+	Transform GetTransform() { return transform_; }
 
 private:
 	//オブジェクト削除（再帰）
