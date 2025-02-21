@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include "Engine/Model.h"
 #include "PlayScene.h"
+#include "Engine/SphereCollider.h"
+#include "Engine/NoHitSphereCollider.h"
 
 Enemy::Enemy(GameObject* parent)
 	: GameObject(parent, "Enemy"), hModel_(-1)
@@ -9,33 +11,39 @@ Enemy::Enemy(GameObject* parent)
 
 void Enemy::Initialize()
 {
+	for (int i = 0; i < END; i++)
+	{
+		model_[i] = Model::Load("Model\\" + modelName[i] + ".fbx");
+		assert(model_[i] >= 0);
+		switch (i)
+		{
+		case 1:
+			Model::SetAnimFrame(model_[i], 0, 120, 2);
+			break;
+		case 2:
+			Model::SetAnimFrame(model_[i], 0, 120, 1);
+			break;
+		}
+	}
+	hModel_ = model_[2];
 	transform_.position_ = { (float)(rand() % 10 - 5),0,(float)(rand() % 10 - 5) };
-	hModel_ = Model::Load("Model\\Enemy.fbx");
 	assert(hModel_ >= 0);
+
+	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0.3, 0), 0.7);
+	AddCollider(collider);
+
+	NoHitSphereCollider* slideCollider = new NoHitSphereCollider(XMFLOAT3(0, 0.3, 0), 5.0);
+	AddCollider(slideCollider);
 }
 
 void Enemy::Update()
 {
-	if (transform_.position_.y < 0)
+	if (transform_.position_.y - g_ <= 0)
 	{
 		onGround_ = true;
 	}
 
-	Player* player = (Player*)FindObject("Player");
-	//float angle = atan2(transform_.position_.x - player->GetTransform().position_.x, transform_.position_.z - player->GetTransform().position_.z) * (180.0 / 3.14);
 
-	//playerÇå©Ç¬ÇØÇΩÇÁ
-	//if (ViewingAngle(10.0, player->GetTransform().position_, angle))
-	//{
-	//	//foundPlayer_ = true;
-	//	//if(!isJamp_)
-	//	//	//isJamp_ = true;
-	//	//transform_.rotate_.y = angle;
-	//}
-	//else
-	//{
-	//	foundPlayer_ = false;
-	//}
 
 	if (!onGround_)
 	{
@@ -50,13 +58,6 @@ void Enemy::Update()
 
 	}
 
-	//transform_.position_.x += cos(angle) * (0.01f * speed_) * 0.5;
-	//transform_.position_.z -= sin(angle) * (0.01f * speed_) * 0.5;
-	if (foundPlayer_)
-	{
-		/*transform_.position_.x += cos(angle) * (0.01f * speed_) * 0.5;
-		transform_.position_.z -= sin(angle) * (0.01f * speed_) * 0.5;*/
-	}
 
 	transform_.position_.y -= g_;
 
@@ -69,16 +70,17 @@ void Enemy::Update()
 	}
 	else
 	{
-		g_ += 0.87;
-		isJamp_ = false;
+		g_ += 0.01;//èdóÕâ¡ë¨ìx
+		//isJamp_ = false;
 	}
 
 	if (transform_.position_.y < -100)
 	{
-		transform_.position_ = { 0,0.5,0 };
+		transform_.position_ = { 0,0,0 };
 	}
 
-	Attack();
+	if(hModel_ == model_[2] && Model::GetAnimFrame(hModel_) == 75)
+		Attack();
 
 	onGround_ = false;
 	transform_.rotate_.y += 1.0;
@@ -96,10 +98,31 @@ void Enemy::Release()
 
 void Enemy::OnCollision(GameObject* pTarget)
 {
-	if (pTarget->GetObjectName() == "Bullet")
+	//if (pTarget->GetObjectName() == "Player")
+	//{
+	//	KillMe();
+	//	pTarget->KillMe();
+	//}
+}
+
+//íTímîÕàÕÇ…ì¸Ç¡ÇΩÇÁ
+void Enemy::NoHitCollision(GameObject* pTarget)
+{
+	if (pTarget->GetObjectName() == "Player")
 	{
- 		KillMe();
-		pTarget->KillMe();
+		//double m = (transform_.position_.y - pTarget->GetPosition().y) / (transform_.position_.x - pTarget->GetPosition().x);
+
+		//// äpìx theta ÇãÅÇﬂÇÈ
+		//// tan(theta) = m => theta = atan(m)
+		//double theta = atan2(m);
+
+		XMVECTOR dist = { transform_.position_.x - pTarget->GetPosition().x ,0,transform_.position_.z - pTarget->GetPosition().z };
+
+		dist = XMVector2Normalize(dist);
+
+		// sin(theta) ÇåvéZ
+		float angle = atan2(XMVectorGetZ(dist), XMVectorGetX(dist));
+		transform_.rotate_.y = angle * 180.0 / 3.14 * -1 - 90.0;
 	}
 }
 
@@ -132,29 +155,7 @@ void Enemy::Damage(int _damage)
 
 void Enemy::Attack()
 {
-	attackTime_ += 1.0f / 10.0f;
-
-	if (attackTime_ >= 2.0f)
-	{
-		attackTime_ -= 2.0;
-
-		Bullet* pBullet = Instantiate<Bullet>(this->GetParent()->GetParent());
-		pBullet->SetPosition(transform_.position_);
-		pBullet->SetRotate(transform_.rotate_);
-		/*for (int i = 0; i < BULLET_NUM; i++)
-		{
-			if (bullet[i] != nullptr)
-			{
-				if(bullet[i]->IsDead())
-					bullet[i] = nullptr;
-			}
-			else
-			{
-				bullet[i] = Instantiate<Bullet>(this);
-				bullet[i]->SetPosition(transform_.position_);
-				bullet[i]->SetRotate(transform_.rotate_);
-				break;
-			}
-		}*/
-	}
+	Bullet* pBullet = Instantiate<Bullet>(this->GetParent()->GetParent());
+	pBullet->SetPosition(transform_.position_);
+	pBullet->SetRotate(transform_.rotate_);
 }

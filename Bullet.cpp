@@ -13,10 +13,10 @@ Bullet::~Bullet()
 
 void Bullet::Initialize()
 {
-	hModel_ = Model::Load("Model\\bullet.fbx");
+	hModel_ = Model::Load("Model\\Bullet.fbx");
 	assert(hModel_ >= 0);
 
-	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0, 0), 0.3);
+	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0, 0), 0.1);
 	AddCollider(collider);
 }
 

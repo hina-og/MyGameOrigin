@@ -114,11 +114,13 @@ public:
 	//コライダー（衝突判定）を追加する
 	void AddCollider(Collider * collider);
 	void AddSphereCollider(SphereCollider* pCollider);
+	void AddNoHitSphereCollider(NoHitSphereCollider* pCollider);
 	void AddSquareCollider(SquareCollider* pCollider);
 
 	//何かと衝突した場合に呼ばれる（オーバーライド用）
 	//引数：pTarget	衝突した相手
 	virtual void OnCollision(GameObject* pTarget) {};
+	virtual void NoHitCollision(GameObject* pTarget) {};
 
 	//コライダー（衝突判定）を削除
 	void ClearCollider();
@@ -134,6 +136,7 @@ public:
 	GameObject* GetRootJob();
 
 	SphereCollider* sphereCollider_;//スフィアコライダー
+	NoHitSphereCollider* NsphereCollider_;//スフィアコライダー(当たり判定なし)
 	SquareCollider* squareCollider_;//スクエアコライダー
 
 

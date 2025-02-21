@@ -225,6 +225,11 @@ void GameObject::AddSphereCollider(SphereCollider* pCollider)
 	sphereCollider_ = pCollider;
 }
 
+void GameObject::AddNoHitSphereCollider(NoHitSphereCollider* pCollider)
+{
+	NsphereCollider_ = pCollider;
+}
+
 void GameObject::AddSquareCollider(SquareCollider* pCollider)
 {
 	squareCollider_ = pCollider;
@@ -257,8 +262,15 @@ void GameObject::Collision(GameObject * pTarget)
 		{
 			if ((*i)->IsHit(*j))
 			{
-				//“–‚½‚Á‚½
-				this->OnCollision(pTarget);
+				if (((*i)->GetColliderType() == COLLIDER_CIRCLE_NOHIT) && !((*j)->GetColliderType() == COLLIDER_CIRCLE_NOHIT))
+				{
+					this->NoHitCollision(pTarget);
+				}
+				else
+				{
+					//“–‚½‚Á‚½
+					this->OnCollision(pTarget);
+				}
 			}
 		}
 	}

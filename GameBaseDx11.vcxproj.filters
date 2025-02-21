@@ -105,6 +105,9 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SquareCollider.cpp" />
     <ClCompile Include="EnemyMaster.cpp" />
+    <ClCompile Include="Engine\NoHitSphereCollider.cpp">
+      <Filter>01Engine\Collider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -186,6 +189,9 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="SquareCollider.h" />
     <ClInclude Include="EnemyMaster.h" />
+    <ClInclude Include="Engine\NoHitSphereCollider.h">
+      <Filter>01Engine\Collider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">

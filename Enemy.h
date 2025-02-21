@@ -2,13 +2,29 @@
 #include "Engine/GameObject.h"
 #include "Bullet.h"
 
-class PlayScene;
 
-const int BULLET_NUM{ 1 };
 
 class Enemy :
     public GameObject
 {
+    enum ENEMY_MODEL
+    {
+        DEFAULT,
+        RUN,
+        ATTACK,
+        END
+    };
+
+    std::string modelName[ENEMY_MODEL::END] =
+    {
+        "Robot",
+        "Robot_Run",
+        "Robot_Attack",
+
+    };
+
+    int model_[ENEMY_MODEL::END];
+
     int hModel_;
     bool onGround_;
     bool isJamp_;
@@ -21,7 +37,6 @@ class Enemy :
     int viewAngle_;//éãñÏäp
     bool foundPlayer_;//ÉvÉåÉCÉÑÅ[Çå©Ç¬ÇØÇΩ
 
-    Bullet* bullet[BULLET_NUM];
     int bulletNum_;
 public:
     bool alive_;
@@ -32,6 +47,7 @@ public:
     void Draw() override;
     void Release() override;
     void OnCollision(GameObject* pTarget)  override;
+    void NoHitCollision(GameObject* pTarget) override;
 
     void SetPosition(Transform _pos) { transform_ = _pos; }
     bool ViewingAngle(float _range, XMFLOAT3 _targetPos, float _angle);

@@ -5,9 +5,10 @@
 #include "SquareCollider.h"
 #include "Engine/Camera.h"
 #include "Engine/SphereCollider.h"
+#include "Engine/NoHitSphereCollider.h"
 
 Player::Player(GameObject* parent)
-	:GameObject(parent, "Player.h"),hModel_(-1),front_({ 0,0,1,0 })
+	:GameObject(parent, "Player"),hModel_(-1),front_({ 0,0,1,0 })
 {
 	g_ = 0.87;
 	transform_.position_ = { 0,0.5,0 };
@@ -19,6 +20,7 @@ Player::Player(GameObject* parent)
 	slide_ = false;
 	slideTime_ = 0.2f;
 	slideScale_ = 1.0f;
+	nearTarget_ = false;
 }
 
 Player::~Player()
@@ -43,11 +45,12 @@ void Player::Initialize()
 	}
 	hModel_ = model_[0];
 	transform_.position_ = { 0,0,-5 };
+	assert(hModel_ >= 0);
 
-	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0, 0), 0.5);
+	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0.3, 0), 0.6);
 	AddCollider(collider);
 
-	SphereCollider* slideCollider = new SphereCollider(XMFLOAT3(0, 0, 0), 1.0);
+	NoHitSphereCollider* slideCollider = new NoHitSphereCollider(XMFLOAT3(0, 0.3, 0), 1.0);
 	AddCollider(slideCollider);
 }
 
@@ -60,7 +63,7 @@ void Player::Update()
 	else
 	{
 		if(Model::GetAnimFrame(model_[2]) >= 120)
-		Model::SetAnimFrame(model_[2], 120);
+			Model::SetAnimFrame(model_[2], 120);
 	}
 	if (transform_.position_.y - g_ <= 0)
 	{
@@ -103,7 +106,7 @@ void Player::Update()
 	//—Ž‚¿‚·‚¬‚½‚Æ‚«‚É‰Šú’n“_‚É–ß‚·
 	if (transform_.position_.y < -100)
 	{
-		transform_.position_ = { 0,0.5,0 };
+		transform_.position_ = { 0,0,0 };
 	}
 
 	onGround_ = false;
@@ -121,11 +124,11 @@ void Player::Release()
 
 void Player::OnCollision(GameObject* pTarget)
 {
-	if (pTarget->GetObjectName() == "Enemy")
-	{
-		KillMe();
-		pTarget->KillMe();
-	}
+	//if (pTarget->GetObjectName() == "Enemy")
+	//{
+	//	KillMe();
+	//	pTarget->KillMe();
+	//}
 
 	if (pTarget->GetObjectName() == "object")
 	{
@@ -136,6 +139,15 @@ void Player::OnCollision(GameObject* pTarget)
 	if (pTarget->GetObjectName() == "Bullet" && pTarget->GetParent()->GetObjectName() == "Enemy")
 	{
 		Damage(1);
+	}
+}
+
+void Player::NoHitCollision(GameObject* pTarget)
+{
+	if (pTarget->GetObjectName() == "Bullet")
+	{
+		if (slide_)
+			nearTarget_ = true;
 	}
 }
 
@@ -245,7 +257,7 @@ void Player::Slide()
 
 	transform_.scale_ = { 1 * slideScale_,1 * slideScale_,1 * slideScale_ };
 
-	slideTime_ -= 0.001;
+	slideTime_ -= 0.01;
 
 	speed_ = 2.0;
 

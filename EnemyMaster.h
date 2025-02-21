@@ -2,7 +2,7 @@
 #include "Engine/GameObject.h"
 #include "Enemy.h"
 
-const int ENEMY_NUM{ 3 };
+const int ENEMY_NUM{ 1 };
 
 class EnemyMaster :
     public GameObject

@@ -1,29 +1,27 @@
 #pragma once
 #include "Engine/GameObject.h"
-
-enum
-{
-    DEFAULT,
-    RUN,
-    JAMP,
-    END
-};
-
-
 #include "Bullet.h"
 
 class Player :
     public GameObject
 {
-    std::string modelName[END] =
+    enum PLAYER_MODEL
+    {
+        DEFAULT,
+        RUN,
+        JAMP,
+        END
+    };
+
+    std::string modelName[PLAYER_MODEL::END] =
     {
         "Slime",
-        "Robot_Run",
+        "Slime_Run",
         "Slime_Jamp",
         
     };
 
-    int model_[END];
+    int model_[PLAYER_MODEL::END];
     int hModel_;
     bool onGround_;
     bool isJamp_;
@@ -38,6 +36,7 @@ class Player :
     float slideTime_;
     float slideScale_;
     XMVECTOR slideDirection_;
+    bool nearTarget_;
 
     Bullet* pBullet;
 public:
@@ -51,6 +50,7 @@ public:
     void Draw() override;
     void Release() override;
     void OnCollision(GameObject* pTarget) override;
+    void NoHitCollision(GameObject* pTarget) override;
 
     void Move();
     void Slide();

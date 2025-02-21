@@ -1,5 +1,6 @@
 #include "BoxCollider.h"
 #include "SphereCollider.h"
+#include "NoHitSphereCollider.h"
 #include "GameObject.h"
 #include "Model.h"
 #include "Transform.h"
@@ -63,8 +64,8 @@ bool Collider::IsHitBoxVsCircle(BoxCollider* box, SphereCollider* sphere)
 }
 
 //球体同士の衝突判定
-//引数：circleA	１つ目の球体判定
-//引数：circleB	２つ目の球体判定
+//引数：circle	１つ目の球体判定
+//引数：Ncircle	２つ目の球体判定
 //戻値：接触していればtrue
 bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circleB)
 {
@@ -84,6 +85,24 @@ bool Collider::IsHitCircleVsCircle(SphereCollider* circleA, SphereCollider* circ
 	return false;
 }
 
+bool Collider::IsHitNoHitCircleVsCircle(SphereCollider* circle, NoHitSphereCollider* Ncircle)
+{
+	XMFLOAT3 centerA = circle->center_;
+	XMFLOAT3 positionA = circle->pGameObject_->GetWorldPosition();
+	XMFLOAT3 centerB = Ncircle->center_;
+	XMFLOAT3 positionB = Ncircle->pGameObject_->GetWorldPosition();
+
+	XMVECTOR v = (XMLoadFloat3(&centerA) + XMLoadFloat3(&positionA))
+		- (XMLoadFloat3(&centerB) + XMLoadFloat3(&positionB));
+
+	if (XMVector3Length(v).m128_f32[0] <= circle->size_.x + Ncircle->size_.x)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 //テスト表示用の枠を描画
 //引数：position	オブジェクトの位置
 void Collider::Draw(XMFLOAT3 position)
@@ -94,4 +113,9 @@ void Collider::Draw(XMFLOAT3 position)
 	transform.Calclation();
 	Model::SetTransform(hDebugModel_, transform);
 	Model::Draw(hDebugModel_);
+}
+
+int Collider::GetColliderType()
+{
+	return type_;
 }
