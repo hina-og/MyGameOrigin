@@ -199,7 +199,7 @@ void Player::Move()
 	if (Input::IsMouseButtonDown(LEFT_CLICK))
 	{
 		slide_ = true;
-		slideTime_ = 0.3f; // スライド時間（適切な時間に調整）
+		slideTime_ = Init_SlideTime; // スライド時間（適切な時間に調整）
 		slideDirection_ = moveDirection; // 現在の移動方向をスライド方向として保存
 	}
 	if (Input::IsMouseButtonDown(RIGHT_CLICK))
@@ -213,6 +213,7 @@ void Player::Move()
 
 	if (slide_)
 	{
+		moveDirection = slideDirection_;
 		Slide();
 	}
 
@@ -242,7 +243,7 @@ void Player::Slide()
 {
 	if (slideScale_ >= 0.7 && slideTime_ > 0)
 	{
-		slideScale_ -= 0.01;
+		slideScale_ -= 0.04;
 	}
 	if (slideTime_ <= 0)
 	{
@@ -250,7 +251,7 @@ void Player::Slide()
 		if (slideScale_ >= 1.0)
 		{
 			slideScale_ = 1.0;
-			slideTime_ = 0.2f;
+			slideTime_ = Init_SlideTime;
 			slide_ = false;
 		}
 	}
@@ -259,7 +260,7 @@ void Player::Slide()
 
 	slideTime_ -= 0.01;
 
-	speed_ = 2.0;
+	speed_ = 0.3;
 
 }
 

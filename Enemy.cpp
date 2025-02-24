@@ -7,6 +7,7 @@
 Enemy::Enemy(GameObject* parent)
 	: GameObject(parent, "Enemy"), hModel_(-1)
 {
+	speed_ = 0.08;
 }
 
 void Enemy::Initialize()
@@ -54,7 +55,7 @@ void Enemy::Update()
 	else
 	{
 		isJamp_ = true;
-		//g_ += 0.0001;
+		g_ += 0.0001;
 
 	}
 
@@ -123,6 +124,22 @@ void Enemy::NoHitCollision(GameObject* pTarget)
 		// sin(theta) を計算
 		float angle = atan2(XMVectorGetZ(dist), XMVectorGetX(dist));
 		transform_.rotate_.y = angle * 180.0 / 3.14 * -1 - 90.0;
+
+		// transform_.rotate_ を基に移動方向を計算
+		float yaw = transform_.rotate_.y;   // Y軸回転（左右）
+		float pitch = transform_.rotate_.x; // X軸回転（上下）
+
+		// 角度が度数法ならラジアンに変換
+		yaw = DirectX::XMConvertToRadians(yaw);
+		pitch = DirectX::XMConvertToRadians(pitch);
+
+		moveDir_.x = sin(yaw) * cos(pitch);
+		moveDir_.y = sin(pitch);
+		moveDir_.z = cos(yaw) * cos(pitch);
+
+		transform_.position_.x = transform_.position_.x + moveDir_.x * speed_;
+		transform_.position_.y = transform_.position_.y + moveDir_.y * speed_;
+		transform_.position_.z = transform_.position_.z + moveDir_.z * speed_;
 	}
 }
 

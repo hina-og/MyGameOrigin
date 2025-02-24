@@ -3,7 +3,7 @@
 #include "Engine/SphereCollider.h"
 
 Bullet::Bullet(GameObject* parent)
-	: GameObject(parent, "Bullet"), hModel_(-1),bulletSpeed_(0.05)
+	: GameObject(parent, "Bullet"), hModel_(-1),bulletSpeed_(0.5)
 {
 }
 
@@ -63,19 +63,4 @@ void Bullet::Release()
 {
 }
 
-void Bullet::UpdateMoveDirection()
-{
-	// 回転角度（ラジアン）
-	float yaw = transform_.rotate_.y; // Y軸回転（左右）
-	float pitch = transform_.rotate_.x; // X軸回転（上下）
-
-	// 角度が度数法ならラジアンに変換（コメントアウトを解除）
-	// yaw   = DirectX::XMConvertToRadians(yaw);
-	// pitch = DirectX::XMConvertToRadians(pitch);
-
-	// 移動方向を計算
-	moveDir_.x = cos(yaw) * cos(pitch);
-	moveDir_.y = sin(pitch);
-	moveDir_.z = sin(yaw) * cos(pitch);
-}
 

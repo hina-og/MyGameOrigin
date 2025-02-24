@@ -36,6 +36,7 @@ class Enemy :
 
     int viewAngle_;//‹–ìŠp
     bool foundPlayer_;//ƒvƒŒƒCƒ„[‚ğŒ©‚Â‚¯‚½
+    XMFLOAT3 moveDir_;
 
     int bulletNum_;
 public:

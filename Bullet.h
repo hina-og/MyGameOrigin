@@ -17,7 +17,5 @@ public:
     void Release() override;
     void SetMoveDir(XMFLOAT3 _move) { moveDir_ = _move; }
     void SetSpeed(float _speed) { bulletSpeed_ = _speed; }
-
-    void UpdateMoveDirection();
 };
 

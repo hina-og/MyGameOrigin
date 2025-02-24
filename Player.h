@@ -20,6 +20,7 @@ class Player :
         "Slime_Jamp",
         
     };
+    const float Init_SlideTime{ 0.15f };
 
     int model_[PLAYER_MODEL::END];
     int hModel_;
