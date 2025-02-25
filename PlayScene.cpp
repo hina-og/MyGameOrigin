@@ -16,9 +16,9 @@ PlayScene::PlayScene(GameObject* parent)
 void PlayScene::Initialize()
 {
 	player = Instantiate<Player>(this);
-	Instantiate<EnemyMaster>(this);
+	eMas = Instantiate<EnemyMaster>(this);
 	Instantiate<Stage>(this);
-	//Instantiate<Object>(this);
+	player->GetEnemyMaster(eMas);
 }                                                                                                                                                                  
 void PlayScene::Update()
 {

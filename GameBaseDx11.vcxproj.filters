@@ -108,6 +108,7 @@
     <ClCompile Include="Engine\NoHitSphereCollider.cpp">
       <Filter>01Engine\Collider</Filter>
     </ClCompile>
+    <ClCompile Include="Robot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\BoxCollider.h">
@@ -192,6 +193,7 @@
     <ClInclude Include="Engine\NoHitSphereCollider.h">
       <Filter>01Engine\Collider</Filter>
     </ClInclude>
+    <ClInclude Include="Robot.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shader\Simple2D.hlsl">

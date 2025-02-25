@@ -46,8 +46,8 @@ void Bullet::Update()
 	transform_.position_.z = transform_.position_.z + moveDir_.z * bulletSpeed_;
 
 	//moveDir_ = { moveDir_.x,moveDir_.y + 0.05f,moveDir_.z };
-	if (transform_.position_.x < -10 || transform_.position_.y < -10 || transform_.position_.z < -10 ||
-		transform_.position_.x >  10 || transform_.position_.y >  10 || transform_.position_.z >  10)
+	if (transform_.position_.x < -20 || transform_.position_.y < -20 || transform_.position_.z < -20 ||
+		transform_.position_.x >  20 || transform_.position_.y >  20 || transform_.position_.z >  20)
 	{
 		KillMe();
 	}

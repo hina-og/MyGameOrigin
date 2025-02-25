@@ -6,6 +6,8 @@
 #include "Engine/Camera.h"
 #include "Engine/SphereCollider.h"
 #include "Engine/NoHitSphereCollider.h"
+#include "EnemyMaster.h"
+#include "Enemy.h"
 
 Player::Player(GameObject* parent)
 	:GameObject(parent, "Player"),hModel_(-1),front_({ 0,0,1,0 })
@@ -18,9 +20,11 @@ Player::Player(GameObject* parent)
 	hp_ = 10;
 
 	slide_ = false;
-	slideTime_ = 0.2f;
+	slideTime_ = Init_SlideTime;
 	slideScale_ = 1.0f;
-	nearTarget_ = false;
+	nearBullet_ = false;
+	jastSlide_ = false;
+	justTime_ = Init_JustTime;
 }
 
 Player::~Player()
@@ -43,7 +47,7 @@ void Player::Initialize()
 			break;
 		}
 	}
-	hModel_ = model_[0];
+	hModel_ = model_[PLAYER_MODEL::DEFAULT];
 	transform_.position_ = { 0,0,-5 };
 	assert(hModel_ >= 0);
 
@@ -58,12 +62,12 @@ void Player::Update()
 {
 	if (canJamp_)
 	{
-		hModel_ = model_[0];
+		hModel_ = model_[PLAYER_MODEL::DEFAULT];
 	}
 	else
 	{
-		if(Model::GetAnimFrame(model_[2]) >= 120)
-			Model::SetAnimFrame(model_[2], 120);
+		if(Model::GetAnimFrame(model_[PLAYER_MODEL::JAMP]) >= 120)
+			Model::SetAnimFrame(model_[PLAYER_MODEL::JAMP], 120);
 	}
 	if (transform_.position_.y - g_ <= 0)
 	{
@@ -97,10 +101,15 @@ void Player::Update()
 	{
 		g_ += 0.01;//重力加速度
 		canJamp_ = false;//ジャンプできない
-		if (hModel_ == model_[2] && Model::GetAnimFrame(hModel_) >= 120)
+		if (hModel_ == model_[PLAYER_MODEL::JAMP] && Model::GetAnimFrame(hModel_) >= 120)
 		{
 			Model::SetAnimFrame(hModel_, 119);
 		}
+	}
+
+	if (jastSlide_)
+	{
+		JastSlide();
 	}
 
 	//落ちすぎたときに初期地点に戻す
@@ -136,7 +145,7 @@ void Player::OnCollision(GameObject* pTarget)
 		transform_.position_ = { transform_.position_.x + trans.x,transform_.position_.y ,transform_.position_.z + trans.z };
 	}
 
-	if (pTarget->GetObjectName() == "Bullet" && pTarget->GetParent()->GetObjectName() == "Enemy")
+	if (pTarget->GetObjectName() == "Bullet" && !slide_)
 	{
 		Damage(1);
 	}
@@ -146,8 +155,13 @@ void Player::NoHitCollision(GameObject* pTarget)
 {
 	if (pTarget->GetObjectName() == "Bullet")
 	{
+		nearBullet_ = false;
 		if (slide_)
-			nearTarget_ = true;
+			nearBullet_ = true;
+	}
+	if (pTarget->GetParent()->GetObjectName() == "EnemyMaster"&& nearBullet_)
+	{
+		jastSlide_ = true;
 	}
 }
 
@@ -162,19 +176,19 @@ void Player::Move()
 	{
 		if (Input::IsKey(DIK_S)) {
 			moveDirection += camDir_.forward_; // 前方に進む
-			hModel_ = model_[1];
+			hModel_ = model_[PLAYER_MODEL::RUN];
 		}
 		if (Input::IsKey(DIK_A)) {
 			moveDirection += camDir_.right_; // 後方に進む
-			hModel_ = model_[1];
+			hModel_ = model_[PLAYER_MODEL::RUN];
 		}
 		if (Input::IsKey(DIK_D)) {
 			moveDirection -= camDir_.right_;   // 左に進む
-			hModel_ = model_[1];
+			hModel_ = model_[PLAYER_MODEL::RUN];
 		}
 		if (Input::IsKey(DIK_W)) {
 			moveDirection -= camDir_.forward_;   // 右に進む
-			hModel_ = model_[1];
+			hModel_ = model_[PLAYER_MODEL::RUN];
 		}
 	}
 	if (Input::IsKey(DIK_LSHIFT))
@@ -192,8 +206,8 @@ void Player::Move()
 		isJamp_ = true;
 		canJamp_ = false;
 		g_ = -0.3;
-		Model::SetAnimFrame(model_[2], 0);
-		hModel_ = model_[2];
+		Model::SetAnimFrame(model_[PLAYER_MODEL::JAMP], 0);
+		hModel_ = model_[PLAYER_MODEL::JAMP];
 	}
 
 	if (Input::IsMouseButtonDown(LEFT_CLICK))
@@ -202,11 +216,13 @@ void Player::Move()
 		slideTime_ = Init_SlideTime; // スライド時間（適切な時間に調整）
 		slideDirection_ = moveDirection; // 現在の移動方向をスライド方向として保存
 	}
-	if (Input::IsMouseButtonDown(RIGHT_CLICK))
+	if (Input::IsMouseButtonDown(RIGHT_CLICK) && jastSlide_)
 	{
-		pBullet = Instantiate<Bullet>(this->GetParent()->GetParent());
-		pBullet->SetPosition(transform_.position_);
-		pBullet->SetRotate(transform_.rotate_);
+		Enemy* e = eMas->NearestEnemy(transform_.position_,3.0f);
+		if (e != nullptr)
+		{
+			Capture(e);
+		}
 	}
 
 
@@ -262,6 +278,23 @@ void Player::Slide()
 
 	speed_ = 0.3;
 
+}
+
+void Player::JastSlide()
+{
+	if (justTime_ <= 0)
+	{
+		justTime_ = Init_JustTime;
+		jastSlide_ = false;
+	}
+
+	justTime_ -= 0.01;
+}
+
+void Player::Capture(Enemy* _e)
+{
+	transform_.position_ = _e->GetPosition();
+	_e->KillMe();
 }
 
 void Player::Damage(int _damage)
