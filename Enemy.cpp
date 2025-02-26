@@ -1,26 +1,30 @@
 #include "Enemy.h"
+#include "Player.h"
 
-//bool Enemy::ViewingAngle(float _range, XMFLOAT3 _targetPos, float _angle)
-//{
-//	XMFLOAT3 dist_;
-//	dist_.x = abs(_targetPos.x - transform_.position_.x);
-//	dist_.y = abs(_targetPos.y - transform_.position_.y);
-//	dist_.z = abs(_targetPos.z - transform_.position_.z);
-//	if (dist_.x > _range || dist_.y > _range || dist_.z > _range)
-//	{
-//		return false;
-//	}
-//	else
-//	{
-//		float startAngle_ = transform_.rotate_.y - (viewAngle_ / 2);
-//		float endAngle_ = transform_.rotate_.y + (viewAngle_ / 2);
-//		if (startAngle_ <= _angle && _angle <= endAngle_)
-//		{
-//			return true;
-//		}
-//	}
-//	return false;
-//}
+bool Enemy::IsPlayerInView(float viewAngle)
+{
+	GameObject* pPlayer = FindPlayer();
+	if (!pPlayer) return false;
+
+	XMVECTOR toPlayer = XMVectorSet(
+		pPlayer->GetPosition().x - transform_.position_.x,
+		0, 
+		pPlayer->GetPosition().z - transform_.position_.z,
+		0
+	);
+
+	toPlayer = XMVector3Normalize(toPlayer);
+	//ê≥ñ ï˚å¸ÉxÉNÉgÉã
+	float yawRad = DirectX::XMConvertToRadians(transform_.rotate_.y);
+	XMVECTOR forward = XMVectorSet(sin(yawRad), 0, cos(yawRad), 0);
+
+	//ì‡êœ
+	float dotProduct = XMVectorGetX(XMVector3Dot(forward, toPlayer));
+
+	float angleBetween = acos(dotProduct) * (180.0f / XM_PI);
+
+	return (angleBetween <= viewAngle / 2.0f);
+}
 
 void Enemy::Damage(int _damage)
 {

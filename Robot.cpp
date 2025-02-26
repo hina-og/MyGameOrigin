@@ -6,6 +6,7 @@ Robot::Robot(GameObject* parent)
 	objectName_ = "Robot";
 	hModel_ = -1;
 	speed_ = 0.06;
+	isChase_ = false;
 }
 
 void Robot::Initialize()
@@ -24,15 +25,15 @@ void Robot::Initialize()
 			break;
 		}
 	}
-	hModel_ = modelList_[ROBOT_MODEL::ATTACK];
+	hModel_ = modelList_[ROBOT_MODEL::DEFAULT];
 	transform_.position_ = { (float)(rand() % 10 - 5),0,(float)(rand() % 10 - 5) };
 	assert(hModel_ >= 0);
 
 	SphereCollider* collider = new SphereCollider(XMFLOAT3(0, 0.3, 0), 0.7);
 	AddCollider(collider);
 
-	NoHitSphereCollider* slideCollider = new NoHitSphereCollider(XMFLOAT3(0, 0.3, 0), 7.0);
-	AddCollider(slideCollider);
+	//NoHitSphereCollider* rangeCollider = new NoHitSphereCollider(XMFLOAT3(0, 0.3, 0), RANGE);
+	//AddCollider(rangeCollider);
 }
 
 void Robot::Update()
@@ -42,13 +43,61 @@ void Robot::Update()
 		onGround_ = true;
 	}
 
-
-
-	if (onGround_)
+	if (IsPlayerInView(90.0f))
 	{
-		
-	}
+		GameObject* p = FindPlayer();
+		XMVECTOR dist = vDistanceCalculation2D(p);
 
+		dist = XMVector2Normalize(dist);
+
+		// sin(theta) を計算
+		float angle = atan2(XMVectorGetZ(dist), XMVectorGetX(dist));
+		transform_.rotate_.y = angle * 180.0 / 3.14 * -1 - 90.0;
+		if (fDistanceCalculation2D(p) >= RANGE)
+		{
+			
+
+			isChase_ = true;
+			float yaw = transform_.rotate_.y;
+			float pitch = transform_.rotate_.x;
+
+			yaw = DirectX::XMConvertToRadians(yaw);
+			pitch = DirectX::XMConvertToRadians(pitch);
+			
+			moveDir_.x = sin(yaw) * cos(pitch);
+			moveDir_.y = sin(pitch);
+			moveDir_.z = cos(yaw) * cos(pitch);
+			
+			transform_.position_.x = transform_.position_.x + moveDir_.x * speed_;
+			transform_.position_.y = transform_.position_.y + moveDir_.y * speed_;
+			transform_.position_.z = transform_.position_.z + moveDir_.z * speed_;
+
+			/*　　向いている方向に進む　　*/
+			//// transform_.rotate_ を基に移動方向を計算
+			//float yaw = transform_.rotate_.y;   // Y軸回転（左右）
+			//float pitch = transform_.rotate_.x; // X軸回転（上下）
+			//
+			//// 角度が度数法ならラジアンに変換
+			//yaw = DirectX::XMConvertToRadians(yaw);
+			//pitch = DirectX::XMConvertToRadians(pitch);
+			//
+			//moveDir_.x = sin(yaw) * cos(pitch);
+			//moveDir_.y = sin(pitch);
+			//moveDir_.z = cos(yaw) * cos(pitch);
+			//
+			//transform_.position_.x = transform_.position_.x + moveDir_.x * speed_;
+			//transform_.position_.y = transform_.position_.y + moveDir_.y * speed_;
+			//transform_.position_.z = transform_.position_.z + moveDir_.z * speed_;
+		}
+		else
+		{
+			isChase_ = false;
+			if (hModel_ != modelList_[ROBOT_MODEL::ATTACK] && Model::GetAnimFrame(hModel_) >= 120)
+			{
+				hModel_ = modelList_[ROBOT_MODEL::ATTACK];
+			}
+		}
+	}
 
 	transform_.position_.y -= g_;
 
@@ -71,6 +120,11 @@ void Robot::Update()
 	if (hModel_ == modelList_[ROBOT_MODEL::ATTACK] && Model::GetAnimFrame(hModel_) == 75)
 		Attack();
 
+	if (isChase_)
+	{
+		hModel_ = modelList_[ROBOT_MODEL::RUN];
+		Model::SetAnimFrame(modelList_[ROBOT_MODEL::ATTACK], 0);
+	}
 	onGround_ = false;
 	transform_.rotate_.y += 1.0;
 }
@@ -87,42 +141,6 @@ void Robot::Release()
 
 void Robot::OnCollision(GameObject* pTarget)
 {
-}
-
-void Robot::NoHitCollision(GameObject* pTarget)
-{
-	if (pTarget->GetObjectName() == "Player")
-	{
-		//double m = (transform_.position_.y - pTarget->GetPosition().y) / (transform_.position_.x - pTarget->GetPosition().x);
-
-		//// 角度 theta を求める
-		//// tan(theta) = m => theta = atan(m)
-		//double theta = atan2(m);
-
-		XMVECTOR dist = { transform_.position_.x - pTarget->GetPosition().x ,0,transform_.position_.z - pTarget->GetPosition().z };
-
-		dist = XMVector2Normalize(dist);
-
-		// sin(theta) を計算
-		float angle = atan2(XMVectorGetZ(dist), XMVectorGetX(dist));
-		transform_.rotate_.y = angle * 180.0 / 3.14 * -1 - 90.0;
-
-		//// transform_.rotate_ を基に移動方向を計算
-		//float yaw = transform_.rotate_.y;   // Y軸回転（左右）
-		//float pitch = transform_.rotate_.x; // X軸回転（上下）
-
-		//// 角度が度数法ならラジアンに変換
-		//yaw = DirectX::XMConvertToRadians(yaw);
-		//pitch = DirectX::XMConvertToRadians(pitch);
-
-		//moveDir_.x = sin(yaw) * cos(pitch);
-		//moveDir_.y = sin(pitch);
-		//moveDir_.z = cos(yaw) * cos(pitch);
-
-		//transform_.position_.x = transform_.position_.x + moveDir_.x * speed_;
-		//transform_.position_.y = transform_.position_.y + moveDir_.y * speed_;
-		//transform_.position_.z = transform_.position_.z + moveDir_.z * speed_;
-	}
 }
 
 void Robot::Attack()

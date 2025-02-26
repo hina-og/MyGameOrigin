@@ -5,6 +5,8 @@
 #include "Engine/NoHitSphereCollider.h"
 #include <vector>
 
+class Player;
+
 class Enemy :
     public GameObject
 {
@@ -23,10 +25,10 @@ protected:
     float attackTime_;
 
     int viewAngle_;//‹–ìŠp
-    bool foundPlayer_;//ƒvƒŒƒCƒ„[‚ğŒ©‚Â‚¯‚½
     XMFLOAT3 moveDir_;
 
-    
+    bool isChase_;
+
 public:
     bool alive_;
 
@@ -35,5 +37,6 @@ public:
     //bool ViewingAngle(float _range, XMFLOAT3 _targetPos, float _angle);
     void Damage(int _damage);
     virtual void Attack();
+    bool IsPlayerInView(float viewAngle);
 };
 

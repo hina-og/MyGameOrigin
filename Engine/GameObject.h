@@ -94,6 +94,10 @@ public:
 	//戻値：見つけたオブジェクトのアドレス
 	GameObject* FindObject(const std::string& name) { return GetRootJob()->FindChildObject(name); }
 
+	//プレイヤーオブジェクトを検索
+	//戻り値：プレイヤーのポインタ
+	GameObject* FindPlayer() { return GetRootJob()->FindChildObject("Player"); }
+	
 	//オブジェクトの名前を取得
 	//戻値：名前
 	const std::string& GetObjectName(void) const;
@@ -110,6 +114,16 @@ public:
 	void KillAllChildren();
 
 
+	//オブジェクト間の距離を計算
+	//引数：対象のポインタ
+	//戻り値：ベクトル
+	XMVECTOR vDistanceCalculation2D(GameObject* pTarget) { return { transform_.position_.x - pTarget->GetPosition().x ,0,transform_.position_.z - pTarget->GetPosition().z }; }
+	XMVECTOR vDistanceCalculation3D(GameObject* pTarget) { return { transform_.position_.x - pTarget->GetPosition().x ,transform_.position_.y - pTarget->GetPosition().y,transform_.position_.z - pTarget->GetPosition().z }; }
+
+	float fDistanceCalculation2D(GameObject* pTarget) { return abs(sqrt((pTarget->GetPosition().x - this->GetPosition().x) * (pTarget->GetPosition().x - this->GetPosition().x)) + ((pTarget->GetPosition().z - this->GetPosition().z) * (pTarget->GetPosition().z - this->GetPosition().z))); }
+	float fDistanceCalculation3D(GameObject* pTarget) { return abs(sqrt(sqrt((pTarget->GetPosition().x - this->GetPosition().x) * (pTarget->GetPosition().x - this->GetPosition().x)) + ((pTarget->GetPosition().z - this->GetPosition().z) * (pTarget->GetPosition().z - this->GetPosition().z)) * sqrt((pTarget->GetPosition().x - this->GetPosition().x) * (pTarget->GetPosition().x - this->GetPosition().x)) + ((pTarget->GetPosition().z - this->GetPosition().z) * (pTarget->GetPosition().z - this->GetPosition().z)) + ((pTarget->GetPosition().y - this->GetPosition().y) * (pTarget->GetPosition().y - this->GetPosition().y)))); }
+	
+	float fDistanceCalculation3D(XMFLOAT3 _pos,XMFLOAT3 pos) {return sqrt(sqrt((_pos.x - pos.x) * (_pos.x - pos.x)) + ((_pos.z - pos.z) * (_pos.z - pos.z)) * sqrt((_pos.x - pos.x) * (_pos.x - pos.x)) + ((_pos.z - pos.z) * (_pos.z - pos.z)) + ((_pos.y - pos.y) * (_pos.y - pos.y))); }
 
 	//コライダー（衝突判定）を追加する
 	void AddCollider(Collider * collider);

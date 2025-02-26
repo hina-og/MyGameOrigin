@@ -5,6 +5,8 @@
 class Robot
 	: public Enemy
 {
+    const float RANGE{ 10.0 };
+
     enum ROBOT_MODEL
     {
         DEFAULT,
@@ -28,7 +30,6 @@ public:
     void Draw() override;
     void Release() override;
     void OnCollision(GameObject* pTarget)  override;
-    void NoHitCollision(GameObject* pTarget) override;
 
     void Attack() override;
 };

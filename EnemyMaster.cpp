@@ -30,11 +30,11 @@ Enemy* EnemyMaster::NearestEnemy(XMFLOAT3 _pos, float _len)//ˆø”‚Ì_pos‚©‚çˆê”Ô‹
 {
     Enemy* nearEnemy = enemy[0];
     XMFLOAT3 pos = enemy[0]->GetPosition();
-    float dist = sqrt((_pos.x - pos.x) * (_pos.x - pos.x)) + ((_pos.y - pos.y) * (_pos.y - pos.y));
+    float dist = fDistanceCalculation3D(_pos, pos);
     for (int i = 1; i < ENEMY_NUM; i++)
     {
         pos = enemy[i]->GetPosition();
-        float fdist = sqrt((_pos.x - pos.x) * (_pos.x - pos.x)) + ((_pos.y - pos.y) * (_pos.y - pos.y));
+        float fdist = fDistanceCalculation3D(_pos, pos);
         if (dist > fdist)
         {
             dist = fdist;
