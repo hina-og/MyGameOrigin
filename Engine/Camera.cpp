@@ -55,6 +55,11 @@ void Camera::SetTarget(float x, float y, float z)
 //位置を設定
 void Camera::SetPosition(XMVECTOR position) { position_ = position; }
 
+void Camera::SetPosition(float x, float y, float z)
+{
+	position_ = { x,y,z };
+}
+
 //焦点を取得
 XMVECTOR Camera::GetTarget() { return target_; }
 
@@ -99,11 +104,11 @@ void Camera::SetSphericalCoordinates(float _radius, float _theta, float _phi)
 
 void Camera::MouseToCamera(XMFLOAT3 sphericalData)
 {
-	// マウスの移動量を角度に反映
+	//マウスの移動量を角度に反映
 	theta_ += sphericalData.x * rotationSpeed;      // 水平方向の回転
 	phi_ -= sphericalData.y * rotationSpeed;        // 垂直方向の回転
 
-	// 垂直角度を制限
+	//垂直角度を制限
 	if (phi_ < phiMin)
 	{
 		phi_ = phiMin;
@@ -113,7 +118,7 @@ void Camera::MouseToCamera(XMFLOAT3 sphericalData)
 		phi_ = phiMax;
 	}
 
-	// ズームイン/アウト
+	//ズームイン/アウト
 	if (radius_ > 0)
 	{
 		radius_ -= sphericalData.z * 0.1f;         // マウスホイールで距離を調整
@@ -135,11 +140,11 @@ void Camera::MouseToCamera(XMFLOAT3 sphericalData)
 
 void Camera::MouseToCamera(float _radius, float _theta, float _phi)
 {
-	// マウスの移動量を角度に反映
+	//マウスの移動量を角度に反映
 	theta_ += _theta * rotationSpeed;      // 水平方向の回転
 	phi_ -= _phi * rotationSpeed;        // 垂直方向の回転
 
-	// 垂直角度を制限
+	//垂直角度を制限
 	if (phi_ < phiMin)
 	{
 		phi_ = phiMin;
@@ -149,7 +154,7 @@ void Camera::MouseToCamera(float _radius, float _theta, float _phi)
 		phi_ = phiMax;
 	}
 
-	// ズームイン/アウト
+	//ズームイン/アウト
 	radius_ += _radius * 0.1f;         // マウスホイールで距離を調整
 	if (radius_ < 5.0f)
 	{
@@ -162,7 +167,7 @@ void Camera::MouseToCamera(float _radius, float _theta, float _phi)
 
 	radius_ = 8.0;
 
-	// 新しいカメラ位置を計算
+	//新しいカメラ位置を計算
 	SetSphericalCoordinates(radius_, theta_, phi_);
 }
 

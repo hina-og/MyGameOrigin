@@ -27,6 +27,7 @@ class Player :
     };
     const float Init_SlideTime{ 0.15f };
     const float Init_JustTime{ 1.0f };
+    const float Init_SlideSpeed{ 0.2f };
 
     int model_[PLAYER_MODEL::END];
     int hModel_;
@@ -36,13 +37,13 @@ class Player :
     float speed_;
     int hp_;
 
-    XMVECTOR moveDirection;
-    XMVECTOR front_;
+    //XMVECTOR moveDirection;
+    //XMVECTOR front_;
 
     bool slide_;
     float slideTime_;
     float slideScale_;
-    XMVECTOR slideDirection_;
+    XMFLOAT3 slideDirection_;
     bool nearBullet_;
     
     bool jastSlide_;

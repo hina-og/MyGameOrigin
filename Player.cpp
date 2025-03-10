@@ -10,7 +10,7 @@
 #include "Enemy.h"
 
 Player::Player(GameObject* parent)
-	:GameObject(parent, "Player"),hModel_(-1),front_({ 0,0,1,0 })
+	:GameObject(parent, "Player"),hModel_(-1)
 {
 	g_ = 0.87;
 	transform_.position_ = { 0,0.5,0 };
@@ -74,12 +74,8 @@ void Player::Update()
 		onGround_ = true;
 	}
 
-	XMFLOAT3 mouseResult;
-	mouseResult = Input::GetMouseMove();
-	mouseResult.x = -mouseResult.x;
-
-	Camera::MouseToCamera(mouseResult);
-	Camera::SetTarget(transform_.position_.x, transform_.position_.y + 2, transform_.position_.z);
+	Camera::SetTarget(transform_.position_.x, transform_.position_.y, transform_.position_.z);
+	Camera::SetPosition(transform_.position_.x, transform_.position_.y + 11, transform_.position_.z - 6);
 
 	Move();
 	
@@ -133,11 +129,6 @@ void Player::Release()
 
 void Player::OnCollision(GameObject* pTarget)
 {
-	//if (pTarget->GetObjectName() == "Enemy")
-	//{
-	//	KillMe();
-	//	pTarget->KillMe();
-	//}
 
 	if (pTarget->GetObjectName() == "object")
 	{
@@ -167,30 +158,8 @@ void Player::NoHitCollision(GameObject* pTarget)
 
 void Player::Move()
 {
-	DirVec camDir_ = Camera::UpdatePlayerPositionAndCamera();
+	XMFLOAT3 moveDirection = { 0,0,0 };
 
-	XMVECTOR moveDirection = XMVectorZero();
-
-	// 入力に基づいて移動方向を決定
-	if (!slide_)
-	{
-		if (Input::IsKey(DIK_S)) {
-			moveDirection += camDir_.forward_; // 前方に進む
-			hModel_ = model_[PLAYER_MODEL::RUN];
-		}
-		if (Input::IsKey(DIK_A)) {
-			moveDirection += camDir_.right_; // 後方に進む
-			hModel_ = model_[PLAYER_MODEL::RUN];
-		}
-		if (Input::IsKey(DIK_D)) {
-			moveDirection -= camDir_.right_;   // 左に進む
-			hModel_ = model_[PLAYER_MODEL::RUN];
-		}
-		if (Input::IsKey(DIK_W)) {
-			moveDirection -= camDir_.forward_;   // 右に進む
-			hModel_ = model_[PLAYER_MODEL::RUN];
-		}
-	}
 	if (Input::IsKey(DIK_LSHIFT))
 	{
 		speed_ = 0.15;
@@ -200,22 +169,41 @@ void Player::Move()
 		speed_ = 0.1;
 	}
 
-	if (Input::IsKeyDown(DIK_SPACE) && canJamp_)
+	if (!slide_)
 	{
-		onGround_ = false;
-		isJamp_ = true;
-		canJamp_ = false;
-		g_ = -0.3;
-		Model::SetAnimFrame(model_[PLAYER_MODEL::JAMP], 0);
-		hModel_ = model_[PLAYER_MODEL::JAMP];
+		if (Input::IsKey(DIK_S)) 
+		{
+			moveDirection.z -= speed_;
+			hModel_ = model_[PLAYER_MODEL::RUN];
+		}
+		if (Input::IsKey(DIK_A)) 
+		{
+			moveDirection.x -= speed_;
+			hModel_ = model_[PLAYER_MODEL::RUN];
+		}
+		if (Input::IsKey(DIK_D)) 
+		{
+			moveDirection.x += speed_;
+			hModel_ = model_[PLAYER_MODEL::RUN];
+		}
+		if (Input::IsKey(DIK_W)) 
+		{
+			moveDirection.z += speed_;
+			hModel_ = model_[PLAYER_MODEL::RUN];
+		}
 	}
-
-	if (Input::IsMouseButtonDown(LEFT_CLICK))
+	
+	if (Input::IsMouseButtonDown(LEFT_CLICK) && !slide_)
 	{
 		slide_ = true;
 		slideTime_ = Init_SlideTime; // スライド時間（適切な時間に調整）
 		slideDirection_ = moveDirection; // 現在の移動方向をスライド方向として保存
+		
+		XMVECTOR v = XMLoadFloat3(&slideDirection_);
+		v = XMVector3Normalize(v);
+		XMStoreFloat3(&slideDirection_, v);
 	}
+
 	if (Input::IsMouseButtonDown(RIGHT_CLICK) && jastSlide_)
 	{
 		Enemy* e = eMas->NearestEnemy(transform_.position_,3.0f);
@@ -225,34 +213,16 @@ void Player::Move()
 		}
 	}
 
-
-
 	if (slide_)
 	{
-		moveDirection = slideDirection_;
+		moveDirection = { slideDirection_.x * Init_SlideSpeed,slideDirection_.y * Init_SlideSpeed ,slideDirection_.z * Init_SlideSpeed };
 		Slide();
 	}
 
+	transform_.position_.x += moveDirection.x;
+	transform_.position_.y += moveDirection.y;
+	transform_.position_.z += moveDirection.z;
 
-
-	// 移動方向がゼロでない場合、正規化してスピードを掛ける
-	if (!XMVector3Equal(moveDirection, XMVectorZero())) {
-		moveDirection = XMVector3Normalize(moveDirection) * speed_;
-
-		transform_.position_.x += XMVectorGetX(moveDirection);
-		transform_.position_.z += XMVectorGetZ(moveDirection);
-
-		// 方向に合わせて回転
-		float angle = atan2(XMVectorGetX(moveDirection), XMVectorGetZ(moveDirection)) * (180 / 3.14f);
-		if (fabs(transform_.rotate_.y - angle) > 1.0f) {
-			if (transform_.rotate_.y < angle) {
-				transform_.rotate_.y += 10.0f;
-			}
-			else if (transform_.rotate_.y > angle) {
-				transform_.rotate_.y -= 10.0f;
-			}
-		}
-	}
 }
 
 void Player::Slide()
